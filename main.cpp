@@ -4,8 +4,8 @@
 #include <fstream>
 #include <thread>
 #include <stdio.h> 
-#include <stdlib.h> 
-#include <string.h> 
+#include <stdlib.h>
+#include <unistd.h> 
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -58,10 +58,10 @@ void openThread(string port) {
 int main(int argc, char *argv[]) { 
 	if (argc != 2) {
 		cout << "Usage: ./a.out commands_filename" << endl;
-		return;
+		return 0;
 	}
 	openThread("5400");
-	return;
+	return 0;
 	char *fname = argv[1];
 	// Open it
 	std::ifstream ifs;
