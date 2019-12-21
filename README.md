@@ -2,10 +2,6 @@
 
 ### Goals to reach:
 
-- Reading from socket and storing in map
-
-- Changing active variable in flight
-
 - Lexer - breaking up into commands
 
 - Handling all commands
@@ -19,23 +15,14 @@
 
 - Initial outline for command to read from socket
 
+- Reading from socket and storing in map
+
+- Changing active variable in flight
+
+
 ### To do:
 
-- Make sure reading from socket works (Dec 19th):
-
-  * Run sample version of code, choose one variable and print out every time it changes
-  * Connect via telnet to the simulator, change the variable
-  * Make sure the change is acknowledged
-  * Think how this would work in a background thread - don't implement yet, but think about how this would work in the background while the rest of the code executes.
-  
-- Make sure writing to socket works (Dec 21st, midnight):
-
-  * Run simulator, and connect via telnet in temrinal. 
-  * Get a variable, see it's value (e.g., "GET /instrumentation/altimeter/indicated-altitude-ft")
-  * Run code, set the value to a different value
-  * Make sure it's acknowledged (run the GET again)
-  
-- Create a Lexer 
+- Create a Lexer (Dec 23rd)
 
   * New class
   * Function to read from file
@@ -43,7 +30,7 @@
   ** Start thinking about loops, but don't spend time on it 
   * Return the list of commands
   
-- Start implementing the actual commands
+- Start implementing the actual commands (Dec 25th)
 
   * One at a time, start with the way they are ordered in the fly.txt file
   * Handle "vars" - you can have three different types:
