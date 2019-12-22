@@ -7,18 +7,20 @@
 
 
 #include <string>
+using namespace std;
 
 class VarCommand {
 public:
     VarCommand(const std::string& all_data_var);
-    void  setSim();
-    void setValue();
-    void getValue();
-    void getVar_name();
+    void  setSim(string sim);
+    void setValue(float val);
+    const string getSim();
+    float getValue();
+    const string getVar_name();
 private:
     int value;
-    std::string sim;
-    std:: string var_name;
+    const string sim;
+    const string var_name;
 
 
 };

@@ -11,10 +11,12 @@
 
 class ConnectCommand : Command {
 public:
-    ConnectCommand(unsigned int port);
+    ConnectCommand(unsigned int port, string localHost);
+    virtual ~ConnectCommand() {}
     int execute();
 private:
     unsigned int m_port;
+    string m_localHost;
 };
 
 

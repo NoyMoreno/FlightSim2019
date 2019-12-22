@@ -13,7 +13,7 @@
 
 #include <arpa/inet.h>
 #include "ConnectCommand.h"
-ConnectCommand::ConnectCommand(unsigned int port): m_port(port) {}
+ConnectCommand::ConnectCommand(unsigned int port, string localHost): m_port(port), m_localHost(localHost) {}
 
 int ConnectCommand::execute() {
     //create socket

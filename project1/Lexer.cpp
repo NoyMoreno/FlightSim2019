@@ -20,7 +20,7 @@ void Lexer::readFromFile() {
         std::string line;
         std::getline(readFile, line);
         lexerString.push_back(line);
-        std::cout<<line << std::endl;
+       // std::cout<<line << std::endl;
     }
     readFile.close();
 }
