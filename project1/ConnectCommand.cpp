@@ -1,4 +1,4 @@
-#define WINDOWS_USE
+//#define WINDOWS_USE
 
 //
 // Created by noy on
@@ -18,12 +18,29 @@
 #include "ConnectCommand.h"
 ConnectCommand::ConnectCommand() {}
 
+int ConnectCommand::clientSocket;
+
+void ConnectCommand::update_value(string key, double val) {
+    #ifndef WINDOWS_USE
+    string stringToSet = "set" + key + to_string(val) + "\r\n";
+    int is_sent;
+    is_sent = send(ConnectCommand::clientSocket, stringToSet.c_str(), stringToSet.length(), 0);
+    if (is_sent == -1) {
+        std::cout << "Error sending message" << std::endl;
+    }
+    else {
+        std::cout << "Message sent to server" << std::endl;
+    }
+    #endif
+}
+
 int ConnectCommand::execute(vector<string> commands, int ind) {
     string local_host  = commands[ind];
     string port = commands[ind+1];
 #ifndef WINDOWS_USE
     //create socket
-    client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    ConnectCommand::clientSocket = client_socket;
     //*******************************************
     if (client_socket == -1) {
         //error

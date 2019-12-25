@@ -24,13 +24,13 @@ int main(int argc, char *argv[]) {
     unordered_map <string, Command *> allCommands;
     // define commands
     allCommands["Print"] = new PrintCommand();
-    allCommands["openServerCommand"] = new OpenServerCommand();
-    allCommands["connectCommand"] = new ConnectCommand();
+    allCommands["openDataServer"] = new OpenServerCommand();
+    allCommands["connectControlClient"] = new ConnectCommand();
 	allCommands["Sleep"] = new SleepCommand();
 
 	unordered_map<string, Expression *> allValues;
 
-	Lexer l("../fly2.txt");
+	Lexer l("../fly.txt");
 	l.readFromFile();
 	// parser
 	vector<string> strings_To_Parser = l.getLexerString();

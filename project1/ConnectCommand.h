@@ -11,19 +11,7 @@
 
 class ConnectCommand : public Command {
 public:
-	static void update_value(string key, double val) {
-#ifndef WINDOWS_USE
-		string stringToSet = "set" + sim + val + "\r\n";
-		int is_sent;
-		is_sent = send(clientSocket, stringToSet, stringToSet.length(), 0);
-		if (is_sent == -1) {
-			std::cout << "Error sending message" << std::endl;
-		}
-		else {
-			std::cout << "Message sent to server" << std::endl;
-		}
-#endif
-	}
+	static void update_value(string key, double val);
 private:
 	static int clientSocket;
 public:

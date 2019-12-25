@@ -1,7 +1,7 @@
 //
 // Created by noy on ٢٣‏/١٢‏/٢٠١٩.
 //
-#define WINDOWS_USE
+//#define WINDOWS_USE
 #ifndef WINDOWS_USE
 #include <unistd.h>
 #else
@@ -20,7 +20,8 @@ int SleepCommand :: execute(std::vector<std::string> commands, int pos) {
     }
 #ifndef WINDOWS_USE
 	sleep(timeSleep / 1000);
-#endif
+#else
 	Sleep(timeSleep / 1000);
+#endif
     return 1;
 }

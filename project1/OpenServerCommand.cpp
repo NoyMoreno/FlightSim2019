@@ -1,4 +1,4 @@
-#define WINDOWS_USE
+//#define WINDOWS_USE
 
 //
 // Created by noy on 
@@ -36,7 +36,6 @@ int OpenServerCommand::execute(vector<string> commands, int ind) {
 	//create socket
     socketfd = socket(AF_INET, SOCK_STREAM, 0);
     //****************
-    serverSocket = socketfd;
     if (socketfd == -1) {
         //error
         std::cerr << "Could not create a socket"<<std::endl;
@@ -48,7 +47,7 @@ int OpenServerCommand::execute(vector<string> commands, int ind) {
     sockaddr_in address; //in means IP4
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY; //give me any IP allocated for my machine
-    address.sin_port = htons(5402);
+    address.sin_port = htons(stoi(port));
 
     //the actual bind command
     if (bind(socketfd, reinterpret_cast<struct sockaddr *>(&address), sizeof(address)) == -1) {
@@ -80,9 +79,10 @@ int OpenServerCommand::execute(vector<string> commands, int ind) {
     std::cout<<buffer<<std::endl;
 
     //writing back to client
-    char hello[] = "Hello, I can hear you! \n";
+    /*char hello[] = "Hello, I can hear you! \n";
     send(client_socket , hello , strlen(hello) , 0 );
-    std::cout<<"Hello message sent\n"<<std::endl;
+    std::cout<<"Hello message sent\n"<<std::endl;*.
+     */
 #endif
     thread t(RunServer, socketfd, &allAcceptingVars, &acceptVarMapLock);
     return 1;
