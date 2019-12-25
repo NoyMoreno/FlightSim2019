@@ -7,15 +7,17 @@
 
 #include <string>
 #include <bits/stdc++.h>
+#include "Command.h"
+
 using namespace std;
 
-class OpenServerCommand {
+class OpenServerCommand : public Command {
 private:
-    unsigned int m_port;
     unordered_map <std::string, double> allAcceptingVars;
+    std::mutex acceptVarMapLock;
 public:
-    OpenServerCommand(unsigned int port);
-    int execute();
+    OpenServerCommand();
+    int execute(vector<string> commands, int ind);
 
 };
 

@@ -7,22 +7,25 @@
 
 
 #include <string>
+#include "Command.h"
+#include "DataVars.h"
+
 using namespace std;
 
-class VarCommand {
+class VarCommand : public Command {
 public:
-    VarCommand(const std::string& all_data_var);
-    void  setSim(string sim);
+    VarCommand(string varName);
+    int execute(std::vector<std::string> commands, int pos);
     void setValue(float val);
-    const string getSim();
     float getValue();
-    const string getVar_name();
+    string getName();
+
 private:
-    int value;
-    const string sim;
-    const string var_name;
-
-
+    DataVars data;
+    float value;
+    string var_name;
+    string sim;
+    string bind;
 };
 
 

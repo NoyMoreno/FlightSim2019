@@ -13,11 +13,16 @@
 
 #include <arpa/inet.h>
 #include "ConnectCommand.h"
-ConnectCommand::ConnectCommand(unsigned int port, string localHost): m_port(port), m_localHost(localHost) {}
+extern int clientSocket;
+ConnectCommand::ConnectCommand() {}
 
-int ConnectCommand::execute() {
+int ConnectCommand::execute(vector<string> commands, int ind) {
+    string local_host  = commands[ind];
+    string port = commands[ind+1];
     //create socket
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    //*******************************************
+    clientSocket = client_socket;
     if (client_socket == -1) {
         //error
         std::cerr << "Could not create a socket"<<std::endl;
@@ -27,8 +32,8 @@ int ConnectCommand::execute() {
     //We need to create a sockaddr obj to hold address of server
     sockaddr_in address; //in means IP4
     address.sin_family = AF_INET;//IP4
-    address.sin_addr.s_addr = inet_addr("127.0.0.1");  //the localhost address
-    address.sin_port = htons(5402);
+    address.sin_addr.s_addr = inet_addr(local_host.c_str());  //the localhost address
+    address.sin_port = htons(atoi(port.c_str()));
     //we need to convert our number (both port & localhost)
     // to a number that the network understands.
 
@@ -54,4 +59,5 @@ int ConnectCommand::execute() {
     std::cout<<buffer<<std::endl;*/
 
     close(client_socket);
+    return 2;
 }

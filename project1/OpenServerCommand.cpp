@@ -3,6 +3,7 @@
 //
 #include <mutex>
 #include "OpenServerCommand.h"
+#include "VarCommand.h"
 #include <stdio.h>
 #include <iostream>
 #include <string>
@@ -17,13 +18,20 @@
 #include <netinet/in.h>
 
 #include <arpa/inet.h>
-
+extern unordered_map<string, VarCommand*> fromServer;
+extern unordered_map<string, VarCommand*> toServer;
+extern int serverSocket;
 using namespace std;
-OpenServerCommand::OpenServerCommand(unsigned int port) : m_port(port) {}
+OpenServerCommand::OpenServerCommand() {}
 
-int OpenServerCommand ::execute() {
+void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock);
+
+int OpenServerCommand ::execute(vector<string> commands, int ind) {
+    string port  = commands[ind];
     //create socket
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    //****************
+    serverSocket = socketfd;
     if (socketfd == -1) {
         //error
         std::cerr << "Could not create a socket"<<std::endl;
@@ -35,7 +43,7 @@ int OpenServerCommand ::execute() {
     sockaddr_in address; //in means IP4
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY; //give me any IP allocated for my machine
-    address.sin_port = htons(m_port);
+    address.sin_port = htons(5402);
 
     //the actual bind command
     if (bind(socketfd, reinterpret_cast<struct sockaddr *>(&address), sizeof(address)) == -1) {
@@ -70,6 +78,14 @@ int OpenServerCommand ::execute() {
     char hello[] = "Hello, I can hear you! \n";
     send(client_socket , hello , strlen(hello) , 0 );
     std::cout<<"Hello message sent\n"<<std::endl;
+
+    thread t(RunServer, socketfd, &allAcceptingVars, &acceptVarMapLock);
+    return 1;
+}
+
+
+void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock) {
+
     string keys[] = { "/instrumentation/airspeed-indicator/indicated-speed-kt",
                       "/instrumentation/altimeter/indicated-altitude-ft",
                       "/instrumentation/altimeter/pressure-alt-ft",
@@ -92,10 +108,13 @@ int OpenServerCommand ::execute() {
                       "/controls/flight/flaps",
                       "/controls/engines/engine/throttle",
                       "/engines/engine/rpm" };
-    mutex acceptVarMapLock;
+
+
+    char buffer[1024];
     while (true) {
         // get information from the simulator
-         valread = read(socketfd, buffer, 1024);
+        int valread = read(socketfd, buffer, 1024);
+        if (valread) break;
         // Split by comma
         // Put them in one at a time
         int iW = 0;
@@ -106,16 +125,21 @@ int OpenServerCommand ::execute() {
                 *endBuf = 0;
                 // Store it
 
-                const std::lock_guard<std::mutex> lock(acceptVarMapLock);
+                const std::lock_guard<std::mutex> lock(*acceptVarMapLock);
                 //convert sting to float
-                allAcceptingVars[keys[iW]] = stof(curBuf);
+                (*allAcceptingVars)[keys[iW]] = stof(curBuf);
+                // noy, update the var obj in "fromServer" map
+                fromServer[keys[iW]]->setValue(stof(curBuf));
+                // update toServerMap
+                string varName = fromServer[keys[iW]]->getName();
+                toServer[varName] = fromServer[keys[iW]];
+                //end noy
                 curBuf = endBuf + 1;
                 endBuf++;
                 iW++;
             }
         }// next char
 
-        cout << allAcceptingVars["/controls/engines/engine/throttle"];
+        cout << (*allAcceptingVars)["/controls/engines/engine/throttle"];
     }
-
 }

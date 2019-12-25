@@ -9,14 +9,11 @@
 #include "Command.h"
 #include <string>
 
-class ConnectCommand : Command {
+class ConnectCommand : public Command {
 public:
-    ConnectCommand(unsigned int port, string localHost);
+    ConnectCommand();
     virtual ~ConnectCommand() {}
-    int execute();
-private:
-    unsigned int m_port;
-    string m_localHost;
+    int execute(vector<string> commands, int ind);
 };
 
 
