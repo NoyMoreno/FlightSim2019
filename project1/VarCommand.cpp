@@ -1,54 +1,32 @@
+#define WINDOWS_USE
 //
-// Created by noy on ٢١‏/١٢‏/٢٠١٩.
+// Created by noy on 
 //
 
 #include <cstring>
 #include <iostream>
+#ifndef WINDOWS_USE
 #include <sys/socket.h>
+#endif
 #include "VarCommand.h"
+#include "OpenServerCommand.h"
+#include "ConnectCommand.h"
+#include "BlockCommand.h"
 // <sim, var>
-extern unordered_map<string, VarCommand*> toServer;
-extern int clientSocket;
-extern int serverSocket;
-VarCommand::VarCommand(string varName) {
-    this->var_name = var_name;
-    // unordered_map<varName, pair<sim, bind>> getSymbolTable()
-    unordered_map<string, pair<string,string>> dataMap = data.getDataMap();
-    this->sim = dataMap[varName].first;
-    this->bind = dataMap[varName].second;
-    // update value - could be a number, or anther var and we need to get his value or expression
-    //***********************************************************************do it
-    // noy, update the toServer map
-    toServer[varName] = this;
-    //end noy
-}
 int VarCommand::execute(std::vector<std::string> commands, int pos) {
-    if (bind.compare("->") == 0){
-        // convert value to string
-        char valueStr[30];
-        gcvt(value, 6, valueStr);
-       string stringToSet  = "set" + sim + valueStr + "\r\n";
-        int is_sent;
-        is_sent = send(clientSocket, stringToSet, strlen(stringToSet.c_str()), 0);
-        if (is_sent == -1) {
-            std::cout<<"Error sending message"<<std::endl;
-        } else {
-            std::cout<<"Hello message sent to server" <<std::endl;
-        }
+    if (var_type == UPDATE){
+		// Commands 0 is equals
+		if (commands[pos].compare("="))
+			throw "Must have equals";
+
+		ConnectCommand::update_value(sim, block->interpretExpression(commands[pos + 1]));
     }
-    if (bind.compare("<-") == 0){
-        // function run server
+    if (var_type == ACCEPT){
+		throw "Can't run execute on accept var";
     }
-
-}
-void VarCommand::setValue(float val) {
-    this->value = val;
-}
-
-float VarCommand::getValue() {
-    return this->value;
-}
-
-string VarCommand::getName() {
-    return this->var_name;
+	if (var_type == VALUE) {
+		double newVal = stod(commands[pos + 1]);
+		value = newVal;
+	}
+	return 2;
 }

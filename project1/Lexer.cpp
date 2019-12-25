@@ -21,9 +21,11 @@ void Lexer::readFromFile() {
         std::getline(readFile, line);
         // if start with "" or end
         bool fInQuote = false;
+		bool fEquals = false;
         int prevPos = 0;
         int len = line.length();
         for (int pos = 0; pos <= len; pos++) {
+			if (fEquals && pos != len) continue;
             if (fInQuote){
                 if (line[pos] == '"') fInQuote = false;
                 else continue;
@@ -34,8 +36,12 @@ void Lexer::readFromFile() {
             }
             // Separators - space, parens, comma
             if (pos == len || line[pos] == '\t' || line[pos] == ' ' || line[pos] == '(' || line[pos] == ')' || line[pos] == ',') {
-                if (prevPos != pos)
-                    lexerString.push_back(line.substr(prevPos, pos - prevPos));
+				if (prevPos != pos) {
+					string s = line.substr(prevPos, pos - prevPos);
+					lexerString.push_back(s);
+					if (s.compare("=") == 0)
+						fEquals = true;
+				}
                 prevPos = pos + 1;
                 continue;
             }

@@ -1,5 +1,7 @@
+#define WINDOWS_USE
+
 //
-// Created by noy on ٢٠‏/١٢‏/٢٠١٩.
+// Created by noy on
 //
 #include "OpenServerCommand.h"
 #include <stdio.h>
@@ -7,22 +9,22 @@
 #include <string>
 #include <string.h>
 #include <stdlib.h>
+#ifndef WINDOWS_USE
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
 #include <arpa/inet.h>
+#endif
 #include "ConnectCommand.h"
-extern int clientSocket;
 ConnectCommand::ConnectCommand() {}
 
 int ConnectCommand::execute(vector<string> commands, int ind) {
     string local_host  = commands[ind];
     string port = commands[ind+1];
+#ifndef WINDOWS_USE
     //create socket
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    client_socket = socket(AF_INET, SOCK_STREAM, 0);
     //*******************************************
-    clientSocket = client_socket;
     if (client_socket == -1) {
         //error
         std::cerr << "Could not create a socket"<<std::endl;
@@ -59,5 +61,6 @@ int ConnectCommand::execute(vector<string> commands, int ind) {
     std::cout<<buffer<<std::endl;*/
 
     close(client_socket);
+#endif
     return 2;
 }

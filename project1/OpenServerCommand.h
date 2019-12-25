@@ -1,3 +1,5 @@
+#define WINDOWS_USE
+
 //
 // Created by noy on ١٩‏/١٢‏/٢٠١٩.
 //
@@ -6,19 +8,24 @@
 #define PROJECT1_OPENSERVERCOMMAND_H
 
 #include <string>
-#include <bits/stdc++.h>
+#include <unordered_map>
+#include <mutex>
 #include "Command.h"
 
 using namespace std;
 
 class OpenServerCommand : public Command {
 private:
-    unordered_map <std::string, double> allAcceptingVars;
-    std::mutex acceptVarMapLock;
+	static unordered_map<std::string, double> allAcceptingVars;
+	static std::mutex acceptVarMapLock;
 public:
+	static double getValue(string key) {
+		acceptVarMapLock.lock();
+		return allAcceptingVars[key];
+		acceptVarMapLock.unlock();
+	}
     OpenServerCommand();
     int execute(vector<string> commands, int ind);
-
 };
 
 

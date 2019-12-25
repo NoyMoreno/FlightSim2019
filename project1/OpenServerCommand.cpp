@@ -1,5 +1,7 @@
+#define WINDOWS_USE
+
 //
-// Created by noy on ١٩‏/١٢‏/٢٠١٩.
+// Created by noy on 
 //
 #include <mutex>
 #include "OpenServerCommand.h"
@@ -12,24 +14,27 @@
 #include <thread>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef WINDOWS_USE
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
+#include <bits/stdc++.h>
 #include <arpa/inet.h>
-extern unordered_map<string, VarCommand*> fromServer;
-extern unordered_map<string, VarCommand*> toServer;
-extern int serverSocket;
+#endif
 using namespace std;
 OpenServerCommand::OpenServerCommand() {}
+unordered_map<string, double> OpenServerCommand::allAcceptingVars;
+mutex OpenServerCommand::acceptVarMapLock;
 
 void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock);
 
-int OpenServerCommand ::execute(vector<string> commands, int ind) {
+int OpenServerCommand::execute(vector<string> commands, int ind) {
     string port  = commands[ind];
-    //create socket
-    int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+	int socketfd = -1;
+#ifndef WINDOWS_USE
+	//create socket
+    socketfd = socket(AF_INET, SOCK_STREAM, 0);
     //****************
     serverSocket = socketfd;
     if (socketfd == -1) {
@@ -78,7 +83,7 @@ int OpenServerCommand ::execute(vector<string> commands, int ind) {
     char hello[] = "Hello, I can hear you! \n";
     send(client_socket , hello , strlen(hello) , 0 );
     std::cout<<"Hello message sent\n"<<std::endl;
-
+#endif
     thread t(RunServer, socketfd, &allAcceptingVars, &acceptVarMapLock);
     return 1;
 }
@@ -86,7 +91,7 @@ int OpenServerCommand ::execute(vector<string> commands, int ind) {
 
 void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock) {
 
-    string keys[] = { "/instrumentation/airspeed-indicator/indicated-speed-kt",
+    vector<string> keys = { "/instrumentation/airspeed-indicator/indicated-speed-kt",
                       "/instrumentation/altimeter/indicated-altitude-ft",
                       "/instrumentation/altimeter/pressure-alt-ft",
                       "/instrumentation/attitude-indicator/indicated-pitch-deg",
@@ -108,38 +113,49 @@ void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingV
                       "/controls/flight/flaps",
                       "/controls/engines/engine/throttle",
                       "/engines/engine/rpm" };
+#ifdef WINDOWS_USE
+	while (true) {
+		for (unsigned int iKey = 0; iKey < keys.size(); iKey++) {
+			acceptVarMapLock->lock();
+			(*allAcceptingVars)[keys[iKey]] = 0;
+			acceptVarMapLock->unlock();
+		}
+		return;
+	}
 
-
+#else 
     char buffer[1024];
-    while (true) {
-        // get information from the simulator
-        int valread = read(socketfd, buffer, 1024);
-        if (valread) break;
-        // Split by comma
-        // Put them in one at a time
-        int iW = 0;
-        char *curBuf = buffer;
-        char *endBuf = curBuf;
-        while (*++endBuf) {
-            if (*endBuf == ',') {
-                *endBuf = 0;
-                // Store it
+	while (true) {
+		// get information from the simulator
+		int valread = read(socketfd, buffer, 1024);
+		if (valread) break;
+		// Split by comma
+		// Put them in one at a time
+		int iW = 0;
+		char *curBuf = buffer;
+		char *endBuf = curBuf;
+		while (*++endBuf) {
+			if (*endBuf == ',') {
+				*endBuf = 0;
+				// Store it
 
-                const std::lock_guard<std::mutex> lock(*acceptVarMapLock);
-                //convert sting to float
-                (*allAcceptingVars)[keys[iW]] = stof(curBuf);
-                // noy, update the var obj in "fromServer" map
-                fromServer[keys[iW]]->setValue(stof(curBuf));
-                // update toServerMap
-                string varName = fromServer[keys[iW]]->getName();
-                toServer[varName] = fromServer[keys[iW]];
-                //end noy
-                curBuf = endBuf + 1;
-                endBuf++;
-                iW++;
-            }
-        }// next char
+				//convert sting to float
+				acceptVarMapLock->lock();
+				(*allAcceptingVars)[keys[iW]] = stod(curBuf);
+				acceptVarMapLock->unlock();
 
-        cout << (*allAcceptingVars)["/controls/engines/engine/throttle"];
+				/*// noy, update the var obj in "fromServer" map
+				fromServer[keys[iW]]->setValue(stof(curBuf));
+				// update toServerMap
+				string varName = fromServer[keys[iW]]->getName();
+				toServer[varName] = fromServer[keys[iW]];
+				//end noy*/
+				curBuf = endBuf + 1;
+				endBuf++;
+				iW++;
+			}
+		}// next char
+        //cout << (*allAcceptingVars)["/controls/engines/engine/throttle"];
     }
+#endif
 }

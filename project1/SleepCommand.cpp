@@ -1,8 +1,13 @@
 //
 // Created by noy on ٢٣‏/١٢‏/٢٠١٩.
 //
-
+#define WINDOWS_USE
+#ifndef WINDOWS_USE
 #include <unistd.h>
+#else
+#include <windows.h>
+#endif
+
 #include "SleepCommand.h"
 SleepCommand :: SleepCommand() {}
 int SleepCommand :: execute(std::vector<std::string> commands, int pos) {
@@ -13,6 +18,9 @@ int SleepCommand :: execute(std::vector<std::string> commands, int pos) {
     if (timeSleep < 1000){
         timeSleep = 1000;
     }
-    sleep(timeSleep/1000);
+#ifndef WINDOWS_USE
+	sleep(timeSleep / 1000);
+#endif
+	Sleep(timeSleep / 1000);
     return 1;
 }
