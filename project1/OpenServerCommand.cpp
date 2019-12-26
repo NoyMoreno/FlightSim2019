@@ -27,7 +27,7 @@ OpenServerCommand::OpenServerCommand() {}
 unordered_map<string, double> OpenServerCommand::allAcceptingVars;
 mutex OpenServerCommand::acceptVarMapLock;
 
-void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock);
+void RunServer(int client_socket, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock);
 
 int OpenServerCommand::execute(vector<string> commands, int ind) {
     string port  = commands[ind];
@@ -71,12 +71,11 @@ int OpenServerCommand::execute(vector<string> commands, int ind) {
         std::cerr<<"Error accepting client"<<std::endl;
         return -4;
     }
-    //close(socketfd); //closing the listening socket
+    close(socketfd); //closing the listening socket
 
     //reading from client
     char buffer[1024] = {0};
-    int valread = read(socketfd , buffer, 1024);
-    std::cout<<buffer<<std::endl;
+    int valread = read(client_socket , buffer, 1024);
 
     //writing back to client
     /*char hello[] = "Hello, I can hear you! \n";
@@ -84,35 +83,49 @@ int OpenServerCommand::execute(vector<string> commands, int ind) {
     std::cout<<"Hello message sent\n"<<std::endl;*.
      */
 #endif
-    thread t(RunServer, socketfd, &allAcceptingVars, &acceptVarMapLock);
+    cout << "Connection made!" << endl;
+    thread t(RunServer, client_socket, &allAcceptingVars, &acceptVarMapLock);
+    t.detach();
     return 1;
 }
 
-
-void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock) {
-
-    vector<string> keys = { "/instrumentation/airspeed-indicator/indicated-speed-kt",
-                      "/instrumentation/altimeter/indicated-altitude-ft",
-                      "/instrumentation/altimeter/pressure-alt-ft",
-                      "/instrumentation/attitude-indicator/indicated-pitch-deg",
-                      "/instrumentation/attitude-indicator/indicated-roll-deg",
-                      "/instrumentation/attitude-indicator/internal-pitch-deg",
-                      "/instrumentation/attitude-indicator/internal-roll-deg",
-                      "/instrumentation/encoder/indicated-altitude-ft",
-                      "/instrumentation/encoder/pressure-alt-ft",
-                      "/instrumentation/gps/indicated-altitude-ft",
-                      "/instrumentation/gps/indicated-ground-speed-kt",
-                      "/instrumentation/gps/indicated-vertical-speed",
-                      "/instrumentation/heading-indicator/indicated-heading-deg",
-                      "/instrumentation/magnetic-compass/indicated-heading-deg",
-                      "/instrumentation/slip-skid-ball/indicated-slip-skid",
-                      "/instrumentation/turn-indicator/indicated-turn-rate",
-                      "/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
-                      "/controls/flight/aileron", "/controls/flight/elevator",
-                      "/controls/flight/rudder",
-                      "/controls/flight/flaps",
-                      "/controls/engines/engine/throttle",
-                      "/engines/engine/rpm" };
+void RunServer(int client_socket, unordered_map <std::string, double>  *allAcceptingVars, mutex *acceptVarMapLock) {
+    vector<string> keys = {    "/instrumentation/airspeed-indicator/indicated-speed-kt",
+                               "/sim/time/warp",
+                               "/controls/switches/magnetos",
+                               "/instrumentation/heading-indicator/offset-deg",
+                               "/instrumentation/altimeter/indicated-altitude-ft",
+                               "/instrumentation/altimeter/pressure-alt-ft",
+                               "/instrumentation/attitude-indicator/indicated-pitch-deg",
+                               "/instrumentation/attitude-indicator/indicated-roll-deg",
+                               "/instrumentation/attitude-indicator/internal-pitch-deg",
+                               "/instrumentation/attitude-indicator/internal-roll-deg",
+                               "/instrumentation/encoder/indicated-altitude-ft",
+                               "/instrumentation/encoder/pressure-alt-ft",
+                               "/instrumentation/gps/indicated-altitude-ft",
+                               "/instrumentation/gps/indicated-ground-speed-kt",
+                               "/instrumentation/gps/indicated-vertical-speed",
+                               "/instrumentation/heading-indicator/indicated-heading-deg",
+                               "/instrumentation/magnetic-compass/indicated-heading-deg",
+                               "/instrumentation/slip-skid-ball/indicated-slip-skid",
+                               "/instrumentation/turn-indicator/indicated-turn-rate",
+                               "/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
+                               "/controls/flight/aileron",
+                               "/controls/flight/elevator",
+                               "/controls/flight/rudder",
+                               "/controls/flight/flaps",
+                               "/controls/engines/engine/throttle",
+                               "/controls/engines/current-engine/throttle",
+                               "/controls/switches/master-avionics",
+                               "/controls/switches/starter",
+                               "/engines/active-engine/auto-start",
+                               "/controls/flight/speedbrake",
+                               "/sim/model/c172p/brake-parking",
+                               "/controls/engines/engine/primer",
+                               "/controls/engines/current-engine/mixture",
+                               "/controls/switches/master-bat",
+                               "/controls/switches/master-alt",
+                               "/engines/engine/rpm" };
 #ifdef WINDOWS_USE
 	while (true) {
 		for (unsigned int iKey = 0; iKey < keys.size(); iKey++) {
@@ -123,19 +136,25 @@ void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingV
 		return;
 	}
 
-#else 
-    char buffer[1024];
-	while (true) {
+#else
+    char buffer[2048];
+    while (true) {
 		// get information from the simulator
-		int valread = read(socketfd, buffer, 1024);
-		if (valread) break;
+		int valread = read(client_socket, buffer, 2048);
+        if (strlen(buffer) == 0)
+            continue;
+		//if (valread) break;
 		// Split by comma
 		// Put them in one at a time
 		int iW = 0;
 		char *curBuf = buffer;
 		char *endBuf = curBuf;
-		while (*++endBuf) {
-			if (*endBuf == ',') {
+		int f = 1;
+		while (f) {
+		    endBuf++;
+			if (*endBuf == ',' || !*endBuf) {
+			    if (!*endBuf)
+			        f = 0;
 				*endBuf = 0;
 				// Store it
 
@@ -155,7 +174,6 @@ void RunServer(int socketfd, unordered_map <std::string, double>  *allAcceptingV
 				iW++;
 			}
 		}// next char
-        //cout << (*allAcceptingVars)["/controls/engines/engine/throttle"];
     }
 #endif
 }

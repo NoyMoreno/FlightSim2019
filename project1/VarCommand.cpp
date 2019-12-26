@@ -18,7 +18,6 @@ int VarCommand::execute(std::vector<std::string> commands, int pos) {
 		// Commands 0 is equals
 		if (commands[pos].compare("="))
 			throw "Must have equals";
-
 		ConnectCommand::update_value(sim, block->interpretExpression(commands[pos + 1]));
     }
     if (var_type == ACCEPT){

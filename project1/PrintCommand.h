@@ -8,10 +8,15 @@
 
 #include <iostream>
 #include "Command.h"
+
+class BlockCommand;
+
 using namespace std;
 class PrintCommand : public Command {
+private:
+    BlockCommand *block;
 public:
-    PrintCommand();
+    PrintCommand(BlockCommand *_block);
     int execute(vector<string> commands, int ind);
 };
 

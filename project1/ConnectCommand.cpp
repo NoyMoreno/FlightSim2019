@@ -22,20 +22,20 @@ int ConnectCommand::clientSocket;
 
 void ConnectCommand::update_value(string key, double val) {
     #ifndef WINDOWS_USE
-    string stringToSet = "set" + key + to_string(val) + "\r\n";
+    string stringToSet = "set " + key + " " + to_string(val) + "\r\n";
     int is_sent;
     is_sent = send(ConnectCommand::clientSocket, stringToSet.c_str(), stringToSet.length(), 0);
     if (is_sent == -1) {
         std::cout << "Error sending message" << std::endl;
     }
     else {
-        std::cout << "Message sent to server" << std::endl;
+        //std::cout << "Message sent to server" << std::endl;
     }
     #endif
 }
 
 int ConnectCommand::execute(vector<string> commands, int ind) {
-    string local_host  = commands[ind];
+    string local_host  = commands[ind].substr(1, commands[ind].length() - 2);
     string port = commands[ind+1];
 #ifndef WINDOWS_USE
     //create socket
@@ -71,13 +71,13 @@ int ConnectCommand::execute(vector<string> commands, int ind) {
     if (is_sent == -1) {
         std::cout<<"Error sending message"<<std::endl;
     } else {
-        std::cout<<"Hello message sent to server" <<std::endl;
+        //std::cout<<"Hello message sent to server" <<std::endl;
     }
     /*char buffer[1024] = {0};
     int valread = read( client_socket , buffer, 1024);
     std::cout<<buffer<<std::endl;*/
 
-    close(client_socket);
+    //close(client_socket);
 #endif
     return 2;
 }

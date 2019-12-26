@@ -26,9 +26,8 @@ public:
 	void addVar(string key, VarCommand *c);
 	double interpretExpression(string exp) {
 		map<string, double> expValues;
-		for (auto tp : curValues)
-			expValues[tp.first] = tp.second->calculate();
-
+        for (auto &tp : curValues)
+            expValues[tp.first] = tp.second->calculate();
 		Interpreter ip;
 		ip.setVariables(expValues);
 		return ip.interpret(regex_replace(exp, regex(" "), ""))->calculate();

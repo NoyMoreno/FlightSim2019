@@ -21,8 +21,9 @@ private:
 public:
 	static double getValue(string key) {
 		acceptVarMapLock.lock();
-		return allAcceptingVars[key];
+		double ret = allAcceptingVars[key];
 		acceptVarMapLock.unlock();
+		return ret;
 	}
     OpenServerCommand();
     int execute(vector<string> commands, int ind);

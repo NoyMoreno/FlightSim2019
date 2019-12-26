@@ -17,25 +17,29 @@ unordered_map <string, VarCommand*> toServer;
 int clientSocket;
 int serverSocket;
 int main(int argc, char *argv[]) {
-    /*if (argc != 2) {
+
+    if (argc != 2) {
         cout << "Usage: ./a.out commands_filename" << endl;
         return 0;
-    }*/
+    }
     unordered_map <string, Command *> allCommands;
     // define commands
-    allCommands["Print"] = new PrintCommand();
     allCommands["openDataServer"] = new OpenServerCommand();
     allCommands["connectControlClient"] = new ConnectCommand();
 	allCommands["Sleep"] = new SleepCommand();
 
 	unordered_map<string, Expression *> allValues;
 
-	Lexer l("../fly.txt");
+	Lexer l(argv[1]);
 	l.readFromFile();
 	// parser
 	vector<string> strings_To_Parser = l.getLexerString();
-
 	BlockCommand command(NONE, &allCommands, &allValues);
-	command.execute(strings_To_Parser, 0);
+	try {
+        command.execute(strings_To_Parser, 0);
+    } catch (const char *c){
+	    cout << c << endl;
+	    throw c;
+	}
     return 0;
 }

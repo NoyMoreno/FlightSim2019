@@ -202,7 +202,7 @@ Expression *Interpreter::interpret(string s) {
 			// If we are in unary, just stop here
 			if (breakInd == 0) {
 				// If not followed by number or parens, bad
-				if (s[1] != '(' && (s[1] < '0' || s[1] > '9'))
+				if (0 && (s[1] != '(' && (s[1] < '0' || s[1] > '9')))
 					throw "illegal math expression";
 
 				if (s[breakInd] == '+')
