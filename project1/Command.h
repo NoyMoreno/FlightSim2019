@@ -10,6 +10,7 @@
 
 class Command {
 public:
+    virtual ~Command() {};
     virtual int execute(std::vector<std::string> commands, int pos) = 0;
 };
 

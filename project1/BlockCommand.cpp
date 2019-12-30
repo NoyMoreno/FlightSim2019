@@ -9,6 +9,7 @@ int BlockCommand::execute(std::vector<std::string> commands, int pos) {
     curCommands = *baseCommands;
     curValues = *baseValues;
 
+    // Define the functions that are block-dependent
     curCommands["if"] = new BlockCommand(IF, &curCommands, &curValues);
     curCommands["while"] = new BlockCommand(WHILE, &curCommands, &curValues);
     curCommands["var"] = new CreateVarCommand(this);
@@ -16,6 +17,7 @@ int BlockCommand::execute(std::vector<std::string> commands, int pos) {
 
     unsigned int end_ind = commands.size();
 
+    // Parse the condition
     if (type == IF || type == WHILE) {
         // Find the end
         int totalOpen = 0;
@@ -29,6 +31,7 @@ int BlockCommand::execute(std::vector<std::string> commands, int pos) {
         }// find end brackets
     }
 
+    // Each operator has a different function - store them all for quick lookup
     map<string, std::function<bool(double, double)>> operators;
     operators["=="] = [](double a, double b) { return a == b; };
     operators["!="] = [](double a, double b) { return a != b; };
@@ -45,7 +48,7 @@ int BlockCommand::execute(std::vector<std::string> commands, int pos) {
         // First, check the condition applies
         unsigned int start_ind = pos;
         if (type != NONE) {
-            // split into two parts
+            // split into all three parts - l,r,op
             string l = "", r = "";
             std::function<bool(double, double)> op;
             string sop;
@@ -63,10 +66,10 @@ int BlockCommand::execute(std::vector<std::string> commands, int pos) {
             condition_matched = op(interpretExpression(l), interpretExpression(r));
             start_ind++;
         }
-
+        // If we matched the condition (default if there is none, start parsing!
         if (condition_matched) {
             for (unsigned int ind = start_ind; ind < end_ind; ind++) {
-                // from here noy add
+                // get the current command and run it
                 string s = commands[ind];
                 Command *c = curCommands[s];
                 ind += c->execute(commands, ind + 1);
@@ -78,6 +81,7 @@ int BlockCommand::execute(std::vector<std::string> commands, int pos) {
     }
     return end_ind - pos + 1;
 }
+// function used my the CreateVarCommand to add a new var into our vocaublary
 void BlockCommand::addVar(string key, VarCommand *c) {
     curCommands[key] = c;
     if (c->has_value())

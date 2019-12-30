@@ -19,6 +19,7 @@ private:
 	static unordered_map<std::string, double> allAcceptingVars;
 	static std::mutex acceptVarMapLock;
 public:
+    // static function in order to allow the vars to access their values
 	static double getValue(string key) {
 		acceptVarMapLock.lock();
 		double ret = allAcceptingVars[key];

@@ -75,7 +75,7 @@ int OpenServerCommand::execute(vector<string> commands, int ind) {
 
     //reading from client
     char buffer[1024] = {0};
-    int valread = read(client_socket , buffer, 1024);
+    read(client_socket , buffer, 1024);
 
     //writing back to client
     /*char hello[] = "Hello, I can hear you! \n";
@@ -140,7 +140,7 @@ void RunServer(int client_socket, unordered_map <std::string, double>  *allAccep
     char buffer[2048];
     while (true) {
 		// get information from the simulator
-		int valread = read(client_socket, buffer, 2048);
+		read(client_socket, buffer, 2048);
         if (strlen(buffer) == 0)
             continue;
 		//if (valread) break;
@@ -153,8 +153,9 @@ void RunServer(int client_socket, unordered_map <std::string, double>  *allAccep
 		while (f) {
 		    endBuf++;
 			if (*endBuf == ',' || !*endBuf) {
-			    if (!*endBuf)
-			        f = 0;
+			    if (!*endBuf) {
+                    f = 0;
+                }
 				*endBuf = 0;
 				// Store it
 
@@ -163,12 +164,6 @@ void RunServer(int client_socket, unordered_map <std::string, double>  *allAccep
 				(*allAcceptingVars)[keys[iW]] = stod(curBuf);
 				acceptVarMapLock->unlock();
 
-				/*// noy, update the var obj in "fromServer" map
-				fromServer[keys[iW]]->setValue(stof(curBuf));
-				// update toServerMap
-				string varName = fromServer[keys[iW]]->getName();
-				toServer[varName] = fromServer[keys[iW]];
-				//end noy*/
 				curBuf = endBuf + 1;
 				endBuf++;
 				iW++;

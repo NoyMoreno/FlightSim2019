@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     unordered_map <string, Command *> allCommands;
-    // define commands
+    // define base commands
     allCommands["openDataServer"] = new OpenServerCommand();
     allCommands["connectControlClient"] = new ConnectCommand();
 	allCommands["Sleep"] = new SleepCommand();

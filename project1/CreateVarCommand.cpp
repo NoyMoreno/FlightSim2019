@@ -15,6 +15,7 @@ int CreateVarCommand::execute(std::vector<std::string> commands, int pos) {
 	if (commands[pos + 1].compare("<-") == 0)
 		type = ACCEPT;
 
+	// Create the command, and set the info
 	VarCommand *c = new VarCommand(name, type, block);
 	block->addVar(name, c);
 	if (type == VALUE) {
@@ -27,4 +28,4 @@ int CreateVarCommand::execute(std::vector<std::string> commands, int pos) {
 		c->setSim(commands[pos + 3].substr(1, commands[pos + 3].length() - 2));
 		return 4;
 	}
-};
+}

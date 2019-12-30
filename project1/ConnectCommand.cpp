@@ -20,6 +20,7 @@ ConnectCommand::ConnectCommand() {}
 
 int ConnectCommand::clientSocket;
 
+// Function which accepts a sim key and a value, and sends it to the simulator
 void ConnectCommand::update_value(string key, double val) {
     #ifndef WINDOWS_USE
     string stringToSet = "set " + key + " " + to_string(val) + "\r\n";
@@ -62,20 +63,8 @@ int ConnectCommand::execute(vector<string> commands, int ind) {
         std::cerr << "Could not connect to host server"<<std::endl;
         return -2;
     } else {
-        std::cout<<"Client is now connected to server" <<std::endl;
+        std::cout << "Client is now connected to server" <<std::endl;
     }
-
-    //if here we made a connection
-    char hello[] = "set controls/flight/rudder 1\r\n";
-    int is_sent = send(client_socket , hello , strlen(hello) , 0 );
-    if (is_sent == -1) {
-        std::cout<<"Error sending message"<<std::endl;
-    } else {
-        //std::cout<<"Hello message sent to server" <<std::endl;
-    }
-    /*char buffer[1024] = {0};
-    int valread = read( client_socket , buffer, 1024);
-    std::cout<<buffer<<std::endl;*/
 
     //close(client_socket);
 #endif

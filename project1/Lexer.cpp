@@ -15,7 +15,6 @@ void Lexer::readFromFile() {
         std::cout << "opening file failed" << std::endl;
         return;
     }
-    int i = 0;
     while (!readFile.eof()) {
         std::string line;
         std::getline(readFile, line);
@@ -46,9 +45,6 @@ void Lexer::readFromFile() {
                 continue;
             }
         }
-
-        //lexerString.push_back(line);
-       // std::cout<<line << std::endl;
     }
     readFile.close();
 }

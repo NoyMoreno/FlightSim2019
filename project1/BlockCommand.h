@@ -12,7 +12,7 @@ enum BLOCK_TYPE { NONE, IF, WHILE };
 
 using namespace std;
 
-class BlockCommand : Command {
+class BlockCommand : public Command {
 private:
 	BLOCK_TYPE type;
 	unordered_map<string, Command *> *baseCommands;
@@ -24,6 +24,7 @@ public:
 	~BlockCommand() {}
 	int execute(std::vector<std::string> commands, int pos);
 	void addVar(string key, VarCommand *c);
+	// Function to take an expression, create an interpreter with all our updated values, and interpret!
 	double interpretExpression(string exp) {
 		map<string, double> expValues;
         for (auto &tp : curValues)
